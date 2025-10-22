@@ -91,6 +91,7 @@
   /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
   .force-mobile-view .container {
     max-width: 480px; 
+    /* Garante que o container fique centralizado em modo 'mobile' no desktop */
   }
   /* OTIMIZAÇÃO MOBILE: Empilha os cards de resumo */
   .force-mobile-view .dashboard-summary {
@@ -101,7 +102,7 @@
     padding: 18px 20px;
   }
   .force-mobile-view .summary-value {
-    font-size: 2.5em; 
+    font-size: 2.5em; /* Reduz um pouco o tamanho do número */
   }
   /* OTIMIZAÇÃO MOBILE: Empilha os filtros */
   .force-mobile-view .filters {
@@ -111,21 +112,21 @@
   .force-mobile-view .filters select, 
   .force-mobile-view .filters button {
     min-width: 100%;
-    box-sizing: border-box; 
+    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
   }
 
   /* OTIMIZAÇÃO MOBILE: Tabela mais compacta e legível */
   .force-mobile-view table {
-    font-size: 0.9em; 
+    font-size: 0.9em; /* Reduz a fonte da tabela */
   }
   .force-mobile-view th, .force-mobile-view td {
-    padding: 12px 8px; 
-    white-space: nowrap; 
+    padding: 12px 8px; /* Reduz o padding da célula */
+    white-space: nowrap; /* Impede a quebra de linha nas células */
   }
   /* Oculta colunas menos essenciais no modo mobile (para caber mais) */
-  .force-mobile-view th:nth-child(4), 
+  .force-mobile-view th:nth-child(4), /* Telefone */
   .force-mobile-view td:nth-child(4),
-  .force-mobile-view th:nth-child(5), 
+  .force-mobile-view th:nth-child(5), /* Servidores */
   .force-mobile-view td:nth-child(5) {
     display: none;
   }
@@ -388,17 +389,19 @@
   }
   /* Media query para telas menores de 900px, aplicada para o modo "computador" em telas pequenas */
   @media (max-width: 900px) {
+    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
     body:not(.force-mobile-view) .dashboard-summary {
         flex-wrap: wrap;
     }
     body:not(.force-mobile-view) .summary-card {
-        flex-basis: calc(50% - 8px); 
+        flex-basis: calc(50% - 8px); /* 2 colunas */
     }
     .container {padding: 30px 5vw;}
     th, td {padding: 14px 12px; font-size: 1em;}
     #modal .modal-content {padding: 30px 20px;}
   }
   @media (max-width: 600px) {
+    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
     body:not(.force-mobile-view) .dashboard-summary {
         flex-direction: column;
     }
@@ -514,12 +517,10 @@
   </div>
 </div>
 <script>
-  // ATENÇÃO: SENHAS DE ACESSO EXPOSTAS (SEM OFUSCAÇÃO)
-  const VALID_CODES = ['AlitaCeo12', 'Ray1206']; 
-  
   // ------------------------------------
-  // ELEMENTOS
+  // CONFIGURAÇÕES E ELEMENTOS
   // ------------------------------------
+  const ACCESS_CODE = 'AlitaCeo12'; 
 
   const body = document.body;
   const loginScreen = document.getElementById('login-screen');
@@ -528,9 +529,11 @@
   const accessCodeInput = document.getElementById('accessCode');
   const loginError = document.getElementById('loginError');
 
+  // NOVOS ELEMENTOS
   const deviceSelectionScreen = document.getElementById('device-selection-screen');
   const accessComputerBtn = document.getElementById('accessComputer');
   const accessMobileBtn = document.getElementById('accessMobile');
+  // FIM DOS NOVOS ELEMENTOS
 
   const clients = [];
   const tbody = document.getElementById('clientTableBody');
@@ -563,12 +566,14 @@
       deviceSelectionScreen.style.display = 'none';
       dashboardContent.style.display = 'block';
 
+      // Aplica estilo para simular resolução mobile, se necessário
       if (deviceType === 'mobile') {
           body.classList.add('force-mobile-view');
       } else {
           body.classList.remove('force-mobile-view');
       }
       
+      // Salva o tipo de dispositivo e o status de login na sessão
       sessionStorage.setItem('isLoggedIn', 'true');
       sessionStorage.setItem('deviceType', deviceType);
 
@@ -580,10 +585,13 @@
       const deviceType = sessionStorage.getItem('deviceType');
 
       if (isLoggedIn && deviceType) {
+          // Já fez login e escolheu o dispositivo: carrega o dashboard
           loadDashboard(deviceType);
       } else if (isLoggedIn) {
+          // Fez login, mas não escolheu o dispositivo: mostra a tela de seleção
           showDeviceSelection();
       } else {
+          // Não logado: mostra a tela de login
           loginScreen.style.display = 'flex';
           dashboardContent.style.display = 'none';
       }
@@ -596,12 +604,13 @@
   loginForm.addEventListener('submit', e => {
       e.preventDefault();
       const code = accessCodeInput.value.trim();
-      
-      // Verifica se o código de acesso está no array de códigos válidos
-      if (VALID_CODES.includes(code)) {
+
+      if (code === ACCESS_CODE) {
+          // Código correto: armazena status de login e vai para a seleção de dispositivo
           sessionStorage.setItem('isLoggedIn', 'true');
           showDeviceSelection();
       } else {
+          // Código incorreto: mostra mensagem de erro
           loginError.textContent = 'Código de acesso inválido.';
           accessCodeInput.value = '';
           accessCodeInput.focus();
@@ -616,17 +625,13 @@
       loadDashboard('mobile');
   });
 
-  // Chama a função de verificação de login ao carregar a página
-  window.addEventListener('load', checkLogin);
-  
   // ------------------------------------
   // FUNÇÕES DO DASHBOARD (Restante do Código)
   // ------------------------------------
 
   function getStatus(client) {
     const today = new Date();
-    // Adiciona 'T00:00:00' para evitar problemas de fuso horário na comparação
-    const vencimento = new Date(client.expiration + 'T00:00:00'); 
+    const vencimento = new Date(client.expiration);
     const diffTime = vencimento - today;
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
     if(diffDays < 0) return "vencido";
@@ -704,7 +709,7 @@
   }
 
   function formatDate(dateStr){
-    const d = new Date(dateStr + 'T00:00:00');
+    const d = new Date(dateStr);
     const day = ("0" + d.getDate()).slice(-2);
     const month = ("0" + (d.getMonth()+1)).slice(-2);
     const year = d.getFullYear();
@@ -821,6 +826,9 @@
   window.addEventListener('click', e => {
     if(e.target === modal) closeModal();
   });
+
+  // Chama a função de verificação de login ao carregar a página
+  checkLogin(); 
 </script>
 </body>
 </html>
