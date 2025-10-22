@@ -64,7 +64,7 @@
     border-radius: 9px;
     font-size: 1.05em;
     width: 100%;
-    margin-bottom: 10px; /* Adicionado para botões de seleção */
+    margin-bottom: 10px;
   }
   .login-box button:hover {
     background: #ff4a5a;
@@ -87,11 +87,51 @@
     border: 2.5px solid #d7243d;
     transition: max-width 0.4s ease;
   }
+  
   /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
   .force-mobile-view .container {
     max-width: 480px; 
+    /* Garante que o container fique centralizado em modo 'mobile' no desktop */
   }
-  
+  /* OTIMIZAÇÃO MOBILE: Empilha os cards de resumo */
+  .force-mobile-view .dashboard-summary {
+    flex-direction: column; 
+    gap: 10px;
+  }
+  .force-mobile-view .summary-card {
+    padding: 18px 20px;
+  }
+  .force-mobile-view .summary-value {
+    font-size: 2.5em; /* Reduz um pouco o tamanho do número */
+  }
+  /* OTIMIZAÇÃO MOBILE: Empilha os filtros */
+  .force-mobile-view .filters {
+    flex-direction: column;
+  }
+  .force-mobile-view .filters input, 
+  .force-mobile-view .filters select, 
+  .force-mobile-view .filters button {
+    min-width: 100%;
+    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+  }
+
+  /* OTIMIZAÇÃO MOBILE: Tabela mais compacta e legível */
+  .force-mobile-view table {
+    font-size: 0.9em; /* Reduz a fonte da tabela */
+  }
+  .force-mobile-view th, .force-mobile-view td {
+    padding: 12px 8px; /* Reduz o padding da célula */
+    white-space: nowrap; /* Impede a quebra de linha nas células */
+  }
+  /* Oculta colunas menos essenciais no modo mobile (para caber mais) */
+  .force-mobile-view th:nth-child(4), /* Telefone */
+  .force-mobile-view td:nth-child(4),
+  .force-mobile-view th:nth-child(5), /* Servidores */
+  .force-mobile-view td:nth-child(5) {
+    display: none;
+  }
+  /* FIM DAS OTIMIZAÇÕES MOBILE */
+
   .logo-text {
     display: flex;
     justify-content: center;
@@ -347,12 +387,24 @@
   .footer .brand {
     color: #d7243d;
   }
+  /* Media query para telas menores de 900px, aplicada para o modo "computador" em telas pequenas */
   @media (max-width: 900px) {
+    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
+    body:not(.force-mobile-view) .dashboard-summary {
+        flex-wrap: wrap;
+    }
+    body:not(.force-mobile-view) .summary-card {
+        flex-basis: calc(50% - 8px); /* 2 colunas */
+    }
     .container {padding: 30px 5vw;}
     th, td {padding: 14px 12px; font-size: 1em;}
     #modal .modal-content {padding: 30px 20px;}
   }
   @media (max-width: 600px) {
+    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
+    body:not(.force-mobile-view) .dashboard-summary {
+        flex-direction: column;
+    }
     .filters {flex-direction: column;}
     .footer {font-size: 1em;}
     #modalForm input { font-size: 1em;}
@@ -775,7 +827,7 @@
     if(e.target === modal) closeModal();
   });
 
-  // NOVO: Chama a função de verificação de login ao carregar a página
+  // Chama a função de verificação de login ao carregar a página
   checkLogin(); 
 </script>
 </body>
