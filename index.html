@@ -13,7 +13,7 @@
     margin: 0;
     min-height: 100vh;
   }
-  /* Estilos para Telas de Login/Seleção */
+  /* Estilos para Telas de Login/Seleção */
   #login-screen, #device-selection-screen {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -75,7 +75,6 @@
     margin-top: 15px;
     height: 1.2em;
   }
-
   /* Dashboard styles */
   .container {
     max-width: 1250px;
@@ -91,9 +90,7 @@
   /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
   .force-mobile-view .container {
     max-width: 480px; 
-    /* Garante que o container fique centralizado em modo 'mobile' no desktop */
   }
-  /* OTIMIZAÇÃO MOBILE: Empilha os cards de resumo */
   .force-mobile-view .dashboard-summary {
     flex-direction: column; 
     gap: 10px;
@@ -102,9 +99,8 @@
     padding: 18px 20px;
   }
   .force-mobile-view .summary-value {
-    font-size: 2.5em; /* Reduz um pouco o tamanho do número */
+    font-size: 2.5em;
   }
-  /* OTIMIZAÇÃO MOBILE: Empilha os filtros */
   .force-mobile-view .filters {
     flex-direction: column;
   }
@@ -112,18 +108,15 @@
   .force-mobile-view .filters select, 
   .force-mobile-view .filters button {
     min-width: 100%;
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+    box-sizing: border-box;
   }
-
-  /* OTIMIZAÇÃO MOBILE: Tabela mais compacta e legível */
   .force-mobile-view table {
-    font-size: 0.9em; /* Reduz a fonte da tabela */
+    font-size: 0.9em;
   }
   .force-mobile-view th, .force-mobile-view td {
-    padding: 12px 8px; /* Reduz o padding da célula */
-    white-space: nowrap; /* Impede a quebra de linha nas células */
+    padding: 12px 8px;
+    white-space: nowrap;
   }
-  /* Oculta colunas menos essenciais no modo mobile (para caber mais) */
   .force-mobile-view th:nth-child(4), /* Telefone */
   .force-mobile-view td:nth-child(4),
   .force-mobile-view th:nth-child(5), /* Servidores */
@@ -307,7 +300,7 @@
     background: #ff4a5a;
   }
   /* Modal (Aplicação de estilos para o modal principal e o novo modal de confirmação) */
-  #modal, #confirmModal { /* <-- CORREÇÃO APLICADA AQUI */
+  #modal, #confirmModal {
     display: none;
     position: fixed;
     z-index: 99;
@@ -315,7 +308,7 @@
     background: rgba(12,9,16,0.95);
     align-items: center; justify-content: center;
   }
-  #modal .modal-content, #confirmModal .modal-content { /* <-- CORREÇÃO APLICADA AQUI */
+  #modal .modal-content, #confirmModal .modal-content {
     background: #1a1820;
     border: 3px solid #d7243d;
     border-radius: 18px;
@@ -325,7 +318,7 @@
     color: #eee;
     box-shadow: 0 8px 48px #d7243d77;
   }
-  #modal h2, #confirmModal h2 { /* <-- CORREÇÃO APLICADA AQUI */
+  #modal h2, #confirmModal h2 {
     margin-bottom: 24px;
     color: #d7243d;
     font-size: 1.48em;
@@ -398,7 +391,7 @@
     }
     .container {padding: 30px 5vw;}
     th, td {padding: 14px 12px; font-size: 1em;}
-    #modal .modal-content, #confirmModal .modal-content {padding: 30px 20px;} /* <-- CORREÇÃO APLICADA AQUI */
+    #modal .modal-content, #confirmModal .modal-content {padding: 30px 20px;}
   }
   @media (max-width: 600px) {
     /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
@@ -715,6 +708,9 @@
 
       // Encontrar o índice real do cliente no array `clients` (necessário para a edição/remoção funcionar com filtros)
       const clientIndex = clients.findIndex(client => client.mac === c.mac && client.name === c.name);
+      
+      // Correção: Se não encontrar por algum motivo, usa o índice atual, mas é menos seguro se estiver filtrado.
+      const safeIndex = clientIndex !== -1 ? clientIndex : i; 
 
       tr.innerHTML = `
         <td>${escapeHtml(c.name)}</td>
@@ -724,10 +720,11 @@
         <td>${escapeHtml(c.servers)}</td>
         <td>${Number(c.value).toFixed(2)}</td>
         <td>${formatDate(c.expiration)}</td>
+        <td>${escapeHtml(c.screens)}</td>
         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
         <td>
-          <button class="btn btn-edit" onclick="openModal(${clientIndex})">Editar</button>
-          <button class="btn btn-remove" onclick="openConfirmModal(${clientIndex})">Remover</button>
+          <button class="btn btn-edit" onclick="openModal(${safeIndex})">Editar</button>
+          <button class="btn btn-remove" onclick="openConfirmModal(${safeIndex})">Remover</button>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -773,7 +770,7 @@
     modal.style.display = 'none';
   }
 
-  // NOVA FUNÇÃO: ABRE O MODAL DE CONFIRMAÇÃO
+  // FUNÇÃO: ABRE O MODAL DE CONFIRMAÇÃO
   function openConfirmModal(index){
     const client = clients[index];
     if (client) {
@@ -783,7 +780,7 @@
     }
   }
 
-  // NOVA FUNÇÃO: FECHA O MODAL DE CONFIRMAÇÃO
+  // FUNÇÃO: FECHA O MODAL DE CONFIRMAÇÃO
   function closeConfirmModal(){
     confirmModal.style.display = 'none';
     clientIndexToDelete = null;
@@ -833,6 +830,7 @@
     this.selectionEnd = this.selectionStart = cursorPosition;
   });
 
+
   btnAdd.addEventListener('click', () => openModal());
   cancelBtn.addEventListener('click', () => closeModal());
   searchInput.addEventListener('input', () => renderTable());
@@ -873,11 +871,11 @@
 
   window.addEventListener('click', e => {
     if(e.target === modal) closeModal();
-    if(e.target === confirmModal) closeConfirmModal(); // Adiciona fechamento ao clicar fora do novo modal
+    if(e.target === confirmModal) closeConfirmModal();
   });
 
   // Chama a função de verificação de login ao carregar a página
-  checkLogin(); 
+  checkLogin();
 </script>
 </body>
 </html>
