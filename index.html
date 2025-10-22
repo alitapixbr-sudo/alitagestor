@@ -514,41 +514,8 @@
   </div>
 </div>
 <script>
-  // ATENÇÃO: TRECHO CRÍTICO DA OFUSCAÇÃO
-  const VALID_CODES = (() => {
-      // K_A: Chave de subtraçao (10) | K_B: Chave de divisao (2)
-      const K_A = [10]; 
-      const K_B = [2]; 
-      
-      // O_C: Códigos Cifrados e Desordenados
-      // 1. AlitaCeo12
-      // 2. Ray1206
-      const O_C = [
-          // AlitaCeo12: Códigos cifrados. ESTA ORDEM FOI MANTIDA PARA SIMPLIFICAR E MINIMIZAR O ERRO.
-          [140, 226, 220, 242, 214, 154, 212, 232, 108, 110], 
-          // Ray1206: Valores cifrados e misturados.
-          [174, 252, 122, 106, 114, 210, 110]
-      ];
-
-      // O_M: Mapas de Decodificação (Reordenam o array cifrado para a ordem correta)
-      const O_M = [
-          // Mapa para AlitaCeo12. Não precisa reordenar, mas precisa ser um array de 0 a 9 para funcionar com a função DE_K.
-          [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-          // Mapa para Ray1206 (Índices para reordenar O_C[1])
-          [2, 6, 0, 4, 1, 5, 3]
-      ];
-      
-      // DE_K: Função de Decodificação (Compacta e Ilegível)
-      const DE_K = (O_V, O_D) => 
-          O_D.reduce((O_S, O_C_I, O_R) => (O_S[O_R] = O_V[O_C_I], O_S), new Array(O_V.length))
-             .map(O_R => (O_R - K_A[0]) / K_B[0]);
-
-      const codes = [];
-      for (let i = 0; i < O_C.length; i++) {
-          codes.push(String.fromCharCode(...DE_K(O_C[i], O_M[i])));
-      }
-      return codes;
-  })(); 
+  // ATENÇÃO: SENHAS DE ACESSO EXPOSTAS (SEM OFUSCAÇÃO)
+  const VALID_CODES = ['AlitaCeo12', 'Ray1206']; 
   
   // ------------------------------------
   // ELEMENTOS
@@ -658,7 +625,8 @@
 
   function getStatus(client) {
     const today = new Date();
-    const vencimento = new Date(client.expiration + 'T00:00:00'); // Adiciona T00:00:00 para evitar problemas de fuso horário
+    // Adiciona 'T00:00:00' para evitar problemas de fuso horário na comparação
+    const vencimento = new Date(client.expiration + 'T00:00:00'); 
     const diffTime = vencimento - today;
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
     if(diffDays < 0) return "vencido";
