@@ -13,6 +13,70 @@
     margin: 0;
     min-height: 100vh;
   }
+  /* Estilos para Telas de Login/Seleção */
+  #login-screen, #device-selection-screen {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #121214;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .login-box {
+    background: #1e1f23;
+    border: 2.5px solid #d7243d;
+    border-radius: 14px;
+    padding: 40px;
+    box-shadow: 0 6px 40px rgba(215,38,61,.45);
+    max-width: 350px;
+    width: 90%;
+    text-align: center;
+  }
+  .login-box h2 {
+    color: #fff;
+    font-size: 1.8em;
+    font-weight: 900;
+    margin-bottom: 25px;
+  }
+  .login-box input[type="password"] {
+    background: #232428;
+    color: #fafafa;
+    border: 2px solid #d7243d;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 1.05em;
+    outline: none;
+    transition: border-color 0.3s ease;
+    width: 100%;
+    margin-bottom: 20px;
+    box-sizing: border-box;
+  }
+  .login-box button {
+    background: #d7243d;
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 1.05em;
+    width: 100%;
+    margin-bottom: 10px; /* Adicionado para botões de seleção */
+  }
+  .login-box button:hover {
+    background: #ff4a5a;
+  }
+  .login-error {
+    color: #ff4a5a;
+    font-weight: 600;
+    margin-top: 15px;
+    height: 1.2em;
+  }
+
+  /* Dashboard styles */
   .container {
     max-width: 1250px;
     margin: 48px auto 24px auto;
@@ -21,7 +85,13 @@
     box-shadow: 0 6px 40px rgba(215,38,61,.35);
     padding: 40px 38px 32px 38px;
     border: 2.5px solid #d7243d;
+    transition: max-width 0.4s ease;
   }
+  /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
+  .force-mobile-view .container {
+    max-width: 480px; 
+  }
+  
   .logo-text {
     display: flex;
     justify-content: center;
@@ -290,66 +360,91 @@
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="logo-text">
-    <span class="alita">Alita</span><span class="play">Play</span>
+
+<div id="login-screen">
+    <div class="login-box">
+      <div class="logo-text">
+        <span class="alita">Alita</span><span class="play">Play</span>
+      </div>
+      <h2>Acesso ao Dashboard</h2>
+      <form id="loginForm">
+          <input type="password" id="accessCode" placeholder="Insira o Código de Acesso" required />
+          <button type="submit">Entrar</button>
+          <div class="login-error" id="loginError"></div>
+      </form>
+    </div>
+</div>
+<div id="device-selection-screen" style="display: none;">
+    <div class="login-box">
+      <div class="logo-text">
+        <span class="alita">Alita</span><span class="play">Play</span>
+      </div>
+      <h2>Acessar como:</h2>
+      <button id="accessComputer">Computador (Desktop/Tablet)</button>
+      <button id="accessMobile">Celular (Mobile)</button>
+    </div>
+</div>
+<div id="dashboard-content" style="display: none;">
+  <div class="container">
+    <div class="logo-text">
+      <span class="alita">Alita</span><span class="play">Play</span>
+    </div>
+    <h1>Dashboard Gestor de Clientes</h1>
+    <div class="dashboard-summary" aria-label="Resumo do status dos clientes">
+      <div class="summary-card">
+        <div class="summary-title">Total de Clientes</div>
+        <div class="summary-value" id="totalClients">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Ativos</div>
+        <div class="summary-value" id="activeClients">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Próximos a Vencer</div>
+        <div class="summary-value" id="nearExpireClients">0</div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-title">Vencidos</div>
+        <div class="summary-value" id="expiredClients">0</div>
+      </div>
+    </div>
+    <div class="filters" aria-label="Filtros de busca e ação">
+      <input type="text" id="search" placeholder="Pesquisar nome, app, MAC..." aria-label="Pesquisar clientes" />
+      <select id="filterStatus" aria-label="Filtrar por status">
+        <option value="">Status</option>
+        <option value="ativo">Ativo</option>
+        <option value="proximo">Próximo do vencimento</option>
+        <option value="vencido">Vencido</option>
+      </select>
+      <input type="date" id="filterExpiration" aria-label="Filtrar por data de vencimento" />
+      <button id="clearFilters" aria-label="Limpar filtros">Limpar Filtros</button>
+      <button id="btnAdd" class="btn btn-add" aria-label="Adicionar cliente">Adicionar</button>
+    </div>
+    <div class="table-wrapper" role="region" aria-live="polite" aria-label="Lista de clientes">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Aplicativo</th>
+            <th>MAC</th>
+            <th>Telefone</th>
+            <th>Servidores</th>
+            <th>Valor (R$)</th>
+            <th>Vencimento</th>
+            <th>Número de telas</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="clientTableBody"></tbody>
+      </table>
+    </div>
   </div>
-  <h1>Dashboard Gestor de Clientes</h1>
-  <div class="dashboard-summary" aria-label="Resumo do status dos clientes">
-    <div class="summary-card">
-      <div class="summary-title">Total de Clientes</div>
-      <div class="summary-value" id="totalClients">0</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-title">Ativos</div>
-      <div class="summary-value" id="activeClients">0</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-title">Próximos a Vencer</div>
-      <div class="summary-value" id="nearExpireClients">0</div>
-    </div>
-    <div class="summary-card">
-      <div class="summary-title">Vencidos</div>
-      <div class="summary-value" id="expiredClients">0</div>
-    </div>
-  </div>
-  <div class="filters" aria-label="Filtros de busca e ação">
-    <input type="text" id="search" placeholder="Pesquisar nome, app, MAC..." aria-label="Pesquisar clientes" />
-    <select id="filterStatus" aria-label="Filtrar por status">
-      <option value="">Status</option>
-      <option value="ativo">Ativo</option>
-      <option value="proximo">Próximo do vencimento</option>
-      <option value="vencido">Vencido</option>
-    </select>
-    <input type="date" id="filterExpiration" aria-label="Filtrar por data de vencimento" />
-    <button id="clearFilters" aria-label="Limpar filtros">Limpar Filtros</button>
-    <button id="btnAdd" class="btn btn-add" aria-label="Adicionar cliente">Adicionar</button>
-  </div>
-  <div class="table-wrapper" role="region" aria-live="polite" aria-label="Lista de clientes">
-    <table>
-      <thead>
-        <tr>
-          <th>Nome</th>
-          <th>Aplicativo</th>
-          <th>MAC</th>
-          <th>Telefone</th>
-          <th>Servidores</th>
-          <th>Valor (R$)</th>
-          <th>Vencimento</th>
-          <th>Número de telas</th>
-          <th>Status</th>
-          <th>Ações</th>
-        </tr>
-      </thead>
-      <tbody id="clientTableBody"></tbody>
-    </table>
+  
+  <div class="footer" aria-label="Créditos do criador">
+    <span class="creator">Criado por: Felippe - CEO <span class="brand">Alita Play</span></span>
   </div>
 </div>
-
-<div class="footer" aria-label="Créditos do criador">
-  <span class="creator">Criado por: Felippe - CEO <span class="brand">Alita Play</span></span>
-</div>
-
 <div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal-content">
     <h2 id="modalTitle">Adicionar Cliente</h2>
@@ -370,6 +465,24 @@
   </div>
 </div>
 <script>
+  // ------------------------------------
+  // CONFIGURAÇÕES E ELEMENTOS
+  // ------------------------------------
+  const ACCESS_CODE = 'AlitaCeo12'; 
+
+  const body = document.body;
+  const loginScreen = document.getElementById('login-screen');
+  const dashboardContent = document.getElementById('dashboard-content');
+  const loginForm = document.getElementById('loginForm');
+  const accessCodeInput = document.getElementById('accessCode');
+  const loginError = document.getElementById('loginError');
+
+  // NOVOS ELEMENTOS
+  const deviceSelectionScreen = document.getElementById('device-selection-screen');
+  const accessComputerBtn = document.getElementById('accessComputer');
+  const accessMobileBtn = document.getElementById('accessMobile');
+  // FIM DOS NOVOS ELEMENTOS
+
   const clients = [];
   const tbody = document.getElementById('clientTableBody');
   const modal = document.getElementById('modal');
@@ -387,6 +500,82 @@
   const expiredClientsElem = document.getElementById('expiredClients');
 
   let editIndex = null;
+
+  // ------------------------------------
+  // FUNÇÕES DE EXIBIÇÃO
+  // ------------------------------------
+
+  function showDeviceSelection() {
+      loginScreen.style.display = 'none';
+      deviceSelectionScreen.style.display = 'flex';
+  }
+
+  function loadDashboard(deviceType) {
+      deviceSelectionScreen.style.display = 'none';
+      dashboardContent.style.display = 'block';
+
+      // Aplica estilo para simular resolução mobile, se necessário
+      if (deviceType === 'mobile') {
+          body.classList.add('force-mobile-view');
+      } else {
+          body.classList.remove('force-mobile-view');
+      }
+      
+      // Salva o tipo de dispositivo e o status de login na sessão
+      sessionStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('deviceType', deviceType);
+
+      loadClients();
+  }
+
+  function checkLogin() {
+      const isLoggedIn = sessionStorage.getItem('isLoggedIn') === 'true';
+      const deviceType = sessionStorage.getItem('deviceType');
+
+      if (isLoggedIn && deviceType) {
+          // Já fez login e escolheu o dispositivo: carrega o dashboard
+          loadDashboard(deviceType);
+      } else if (isLoggedIn) {
+          // Fez login, mas não escolheu o dispositivo: mostra a tela de seleção
+          showDeviceSelection();
+      } else {
+          // Não logado: mostra a tela de login
+          loginScreen.style.display = 'flex';
+          dashboardContent.style.display = 'none';
+      }
+  }
+
+  // ------------------------------------
+  // LISTENERS DE LOGIN E SELEÇÃO
+  // ------------------------------------
+
+  loginForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const code = accessCodeInput.value.trim();
+
+      if (code === ACCESS_CODE) {
+          // Código correto: armazena status de login e vai para a seleção de dispositivo
+          sessionStorage.setItem('isLoggedIn', 'true');
+          showDeviceSelection();
+      } else {
+          // Código incorreto: mostra mensagem de erro
+          loginError.textContent = 'Código de acesso inválido.';
+          accessCodeInput.value = '';
+          accessCodeInput.focus();
+      }
+  });
+
+  accessComputerBtn.addEventListener('click', () => {
+      loadDashboard('computer');
+  });
+
+  accessMobileBtn.addEventListener('click', () => {
+      loadDashboard('mobile');
+  });
+
+  // ------------------------------------
+  // FUNÇÕES DO DASHBOARD (Restante do Código)
+  // ------------------------------------
 
   function getStatus(client) {
     const today = new Date();
@@ -529,9 +718,9 @@
 
   function formatMac(value) {
     return value
-      .replace(/[^a-fA-F0-9]/g, '')  // remove todos os caracteres não-hex
-      .substring(0,12)                // limita a 12 caracteres (6 pares)
-      .replace(/(.{2})(?=.)/g, '$1:')// adiciona ":" a cada 2 caracteres
+      .replace(/[^a-fA-F0-9]/g, '')
+      .substring(0,12)
+      .replace(/(.{2})(?=.)/g, '$1:')
       .toLowerCase();
   }
   const macInput = document.getElementById('modalMac');
@@ -582,11 +771,12 @@
     closeModal();
   });
 
-  loadClients();
-
   window.addEventListener('click', e => {
     if(e.target === modal) closeModal();
   });
+
+  // NOVO: Chama a função de verificação de login ao carregar a página
+  checkLogin(); 
 </script>
 </body>
 </html>
