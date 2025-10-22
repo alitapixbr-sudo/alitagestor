@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard Gestor de Clientes - Alita Play</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #121214;
+    color: #eee;
+    margin: 0;
+    min-height: 100vh;
+  }
+  .container {
+    max-width: 1250px;
+    margin: 48px auto 24px auto;
+    background: #1e1f23;
+    border-radius: 14px;
+    box-shadow: 0 6px 40px rgba(215,38,61,.35);
+    padding: 40px 38px 32px 38px;
+    border: 2.5px solid #d7243d;
+  }
+  .logo-text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.4em;
+    font-weight: 900;
+    letter-spacing: 3px;
+    margin-bottom: 22px;
+    user-select: none;
+    background: linear-gradient(90deg, #fff 60%, #d7243d 60%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  h1 {
+    color: #d7243d;
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1.62em;
+    font-weight: 800;
+    text-shadow: 0 2px 20px #4d0000aa;
+  }
+  /* Dashboard summary */
+  .dashboard-summary {
+    display: flex;
+    justify-content: space-around;
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .summary-card {
+    background: #29292e;
+    flex: 1;
+    padding: 24px 28px;
+    border-radius: 12px;
+    box-shadow: 0 0 18px #d7243d44;
+    text-align: center;
+    color: #ddd;
+  }
+  .summary-title {
+    font-weight: 600;
+    font-size: 1.1em;
+    margin-bottom: 6px;
+  }
+  .summary-value {
+    font-weight: 900;
+    font-size: 3.3em;
+    letter-spacing: 2px;
+  }
+  /* Search & filter */
+  .filters {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: 28px;
+  }
+  .filters input, .filters select, .filters button {
+    background: #232428;
+    color: #fafafa;
+    border: 2px solid #d7243d;
+    padding: 14px 16px;
+    border-radius: 9px;
+    font-size: 1.05em;
+    outline: none;
+    transition: border-color 0.3s ease;
+    flex-grow: 1;
+    min-width: 160px;
+  }
+  .filters input:focus, .filters select:focus {
+    border-color: #ff4a5a;
+  }
+  .filters button {
+    background: #d7243d;
+    color: white;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    flex-grow: none;
+    min-width: 140px;
+  }
+  .filters button:hover {
+    background: #ff4a5a;
+  }
+  /* Table container */
+  .table-wrapper {
+    overflow-x: auto;
+    border-radius: 11px;
+    box-shadow: 0 0 26px #d7243d54;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #222327;
+    border-radius: 11px;
+    overflow: hidden;
+    font-size: 1em;
+  }
+  thead {
+    background: #2d2f33;
+  }
+  th, td {
+    padding: 18px 22px;
+    text-align: left;
+    user-select: text;
+  }
+  th {
+    color: #d7243d;
+    font-weight: 800;
+    letter-spacing: 0.035em;
+  }
+  tbody tr:nth-child(odd) {
+    background: #1e2024;
+  }
+  tbody tr:hover {
+    background: #3d141c;
+    transition: background-color 0.3s ease;
+  }
+  /* Status badges */
+  .status-badge {
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 12px;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .status-ativo {
+    background: #28a745;
+    color: #f0f9f1;
+  }
+  .status-vencido {
+    background: #dc3545;
+    color: #fdecea;
+  }
+  .status-proximo {
+    background: #ffc107;
+    color: #4c3e00;
+  }
+  /* Buttons */
+  .btn {
+    cursor: pointer;
+    padding: 9px 17px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+    margin-right: 6px;
+    font-size: 1em;
+    letter-spacing: 1px;
+    outline: none;
+    transition: background 0.3s ease;
+  }
+  .btn-remove {
+    background: #dc3545;
+    color: white;
+  }
+  .btn-remove:hover {
+    background: #ff5b6f;
+  }
+  .btn-edit {
+    background: #2f2f32;
+    color: #d7243d;
+    border: 2px solid #d7243d;
+  }
+  .btn-edit:hover {
+    background: #d7243d;
+    color: white;
+  }
+  .btn-add {
+    background: #d7243d;
+    color: white;
+    flex-grow: 0;
+  }
+  .btn-add:hover {
+    background: #ff4a5a;
+  }
+  /* Modal */
+  #modal {
+    display: none;
+    position: fixed;
+    z-index: 99;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(12,9,16,0.95);
+    align-items: center; justify-content: center;
+  }
+  #modal .modal-content {
+    background: #1a1820;
+    border: 3px solid #d7243d;
+    border-radius: 18px;
+    max-width: 480px;
+    width: 95%;
+    padding: 40px 32px 30px 32px;
+    color: #eee;
+    box-shadow: 0 8px 48px #d7243d77;
+  }
+  #modal h2 {
+    margin-bottom: 24px;
+    color: #d7243d;
+    font-size: 1.48em;
+    font-weight: 900;
+    text-align: center;
+  }
+  #modalForm input, #modalForm input[type=number] {
+    margin-bottom: 18px;
+    background: #2d2e34;
+    border: 2px solid #d7243d;
+    color: #eee;
+    border-radius: 10px;
+    padding: 14px 18px;
+    width: 100%;
+    font-size: 1.08em;
+  }
+  #modalForm input:focus {
+    border-color: #ff4757;
+  }
+  #modalForm .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 16px;
+    margin-top: 18px;
+  }
+  #modalForm button[type="button"] {
+    background: #444;
+    color: #ddd;
+    font-weight: 700;
+    font-size: 1.05em;
+    border-radius: 10px;
+    padding: 12px 20px;
+  }
+  #modalForm button[type="button"]:hover {
+    background: #2b2b2b;
+  }
+  #modalForm button[type="submit"] {
+    background: #d7243d;
+    color: white;
+    font-weight: 900;
+    font-size: 1.1em;
+    border-radius: 10px;
+    padding: 12px 26px;
+  }
+  #modalForm button[type="submit"]:hover {
+    background: #ff4a5a;
+  }
+  .footer {
+    margin-top: 44px;
+    text-align: center;
+    color: #ddd;
+    font-size: 1.1em;
+    letter-spacing: 1.1px;
+  }
+  .footer .creator {
+    font-weight: 900;
+    color: #fff;
+  }
+  .footer .brand {
+    color: #d7243d;
+  }
+  @media (max-width: 900px) {
+    .container {padding: 30px 5vw;}
+    th, td {padding: 14px 12px; font-size: 1em;}
+    #modal .modal-content {padding: 30px 20px;}
+  }
+  @media (max-width: 600px) {
+    .filters {flex-direction: column;}
+    .footer {font-size: 1em;}
+    #modalForm input { font-size: 1em;}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo-text">
+    <span class="alita">Alita</span><span class="play">Play</span>
+  </div>
+  <h1>Dashboard Gestor de Clientes</h1>
+  <div class="dashboard-summary" aria-label="Resumo do status dos clientes">
+    <div class="summary-card">
+      <div class="summary-title">Total de Clientes</div>
+      <div class="summary-value" id="totalClients">0</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">Ativos</div>
+      <div class="summary-value" id="activeClients">0</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">Próximos a Vencer</div>
+      <div class="summary-value" id="nearExpireClients">0</div>
+    </div>
+    <div class="summary-card">
+      <div class="summary-title">Vencidos</div>
+      <div class="summary-value" id="expiredClients">0</div>
+    </div>
+  </div>
+  <div class="filters" aria-label="Filtros de busca e ação">
+    <input type="text" id="search" placeholder="Pesquisar nome, app, MAC..." aria-label="Pesquisar clientes" />
+    <select id="filterStatus" aria-label="Filtrar por status">
+      <option value="">Status</option>
+      <option value="ativo">Ativo</option>
+      <option value="proximo">Próximo do vencimento</option>
+      <option value="vencido">Vencido</option>
+    </select>
+    <input type="date" id="filterExpiration" aria-label="Filtrar por data de vencimento" />
+    <button id="clearFilters" aria-label="Limpar filtros">Limpar Filtros</button>
+    <button id="btnAdd" class="btn btn-add" aria-label="Adicionar cliente">Adicionar</button>
+  </div>
+  <div class="table-wrapper" role="region" aria-live="polite" aria-label="Lista de clientes">
+    <table>
+      <thead>
+        <tr>
+          <th>Nome</th>
+          <th>Aplicativo</th>
+          <th>MAC</th>
+          <th>Telefone</th>
+          <th>Servidores</th>
+          <th>Valor (R$)</th>
+          <th>Vencimento</th>
+          <th>Número de telas</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="clientTableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer" aria-label="Créditos do criador">
+  <span class="creator">Criado por: Felippe - CEO <span class="brand">Alita Play</span></span>
+</div>
+
+<div id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-content">
+    <h2 id="modalTitle">Adicionar Cliente</h2>
+    <form id="modalForm" autocomplete="off">
+      <input type="text" id="modalName" placeholder="Nome" required aria-required="true" />
+      <input type="text" id="modalApp" placeholder="Aplicativo" required aria-required="true" />
+      <input type="text" id="modalMac" placeholder="MAC" maxlength="17" required aria-required="true" />
+      <input type="tel" id="modalPhone" placeholder="Telefone" required aria-required="true" />
+      <input type="text" id="modalServers" placeholder="Servidores" required aria-required="true" />
+      <input type="number" id="modalValue" placeholder="Valor (R$)" min="0" step="0.01" required aria-required="true" />
+      <input type="date" id="modalExpiration" required aria-required="true" />
+      <input type="number" id="modalScreens" placeholder="Número de telas" min="1" required aria-required="true" />
+      <div class="modal-actions">
+        <button type="button" id="cancelBtn">Cancelar</button>
+        <button type="submit">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<script>
+  const clients = [];
+  const tbody = document.getElementById('clientTableBody');
+  const modal = document.getElementById('modal');
+  const modalForm = document.getElementById('modalForm');
+  const modalTitle = document.getElementById('modalTitle');
+  const btnAdd = document.getElementById('btnAdd');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const searchInput = document.getElementById('search');
+  const filterStatus = document.getElementById('filterStatus');
+  const filterExpiration = document.getElementById('filterExpiration');
+  const clearFilters = document.getElementById('clearFilters');
+  const totalClientsElem = document.getElementById('totalClients');
+  const activeClientsElem = document.getElementById('activeClients');
+  const nearExpireClientsElem = document.getElementById('nearExpireClients');
+  const expiredClientsElem = document.getElementById('expiredClients');
+
+  let editIndex = null;
+
+  function getStatus(client) {
+    const today = new Date();
+    const vencimento = new Date(client.expiration);
+    const diffTime = vencimento - today;
+    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+    if(diffDays < 0) return "vencido";
+    else if(diffDays <= 5) return "proximo";
+    else return "ativo";
+  }
+
+  function renderTable() {
+    tbody.innerHTML = '';
+
+    // Atualiza painéis resumo
+    totalClientsElem.textContent = clients.length;
+    let countAtivo = 0;
+    let countProximo = 0;
+    let countVencido = 0;
+    clients.forEach(c => {
+      const st = getStatus(c);
+      if(st==="ativo") countAtivo++;
+      else if(st==="proximo") countProximo++;
+      else countVencido++;
+    });
+    activeClientsElem.textContent = countAtivo;
+    nearExpireClientsElem.textContent = countProximo;
+    expiredClientsElem.textContent = countVencido;
+
+    // Filtrar clientes conforme busca e filtros
+    let filtered = clients.filter(c => {
+      const searchValue = searchInput.value.toLowerCase();
+      let status = getStatus(c);
+
+      let matchesSearch = c.name.toLowerCase().includes(searchValue) ||
+                          c.app.toLowerCase().includes(searchValue) ||
+                          c.mac.toLowerCase().includes(searchValue);
+
+      let matchesStatus = true;
+      if(filterStatus.value){
+        matchesStatus = (filterStatus.value === status);
+      }
+
+      let matchesExpiration = true;
+      if(filterExpiration.value){
+        matchesExpiration = c.expiration === filterExpiration.value;
+      }
+      return matchesSearch && matchesStatus && matchesExpiration;
+    });
+
+    if(filtered.length === 0){
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td colspan="10" style="text-align:center; padding:15px;">Nenhum cliente encontrado.</td>`;
+      tbody.appendChild(tr);
+      return;
+    }
+
+    filtered.forEach((c,i)=>{
+      let st = getStatus(c);
+      let statusText = st.charAt(0).toUpperCase()+st.slice(1);
+      let statusClass = `status-${st}`;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${escapeHtml(c.name)}</td>
+        <td>${escapeHtml(c.app)}</td>
+        <td>${escapeHtml(c.mac)}</td>
+        <td>${escapeHtml(c.phone)}</td>
+        <td>${escapeHtml(c.servers)}</td>
+        <td>${Number(c.value).toFixed(2)}</td>
+        <td>${formatDate(c.expiration)}</td>
+        <td>${escapeHtml(c.screens)}</td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td>
+          <button class="btn btn-edit" onclick="openModal(${i})">Editar</button>
+          <button class="btn btn-remove" onclick="removeClient(${i})">Remover</button>
+        </td>`;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function formatDate(dateStr){
+    const d = new Date(dateStr);
+    const day = ("0" + d.getDate()).slice(-2);
+    const month = ("0" + (d.getMonth()+1)).slice(-2);
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  }
+
+  function escapeHtml(text){
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function openModal(index=null){
+    modal.style.display = 'flex';
+    if(index === null){
+      modalTitle.textContent = 'Adicionar Cliente';
+      modalForm.reset();
+      editIndex = null;
+    } else {
+      modalTitle.textContent = 'Editar Cliente';
+      const c = clients[index];
+      modalForm.modalName.value = c.name;
+      modalForm.modalApp.value = c.app;
+      modalForm.modalMac.value = c.mac;
+      modalForm.modalPhone.value = c.phone;
+      modalForm.modalServers.value = c.servers;
+      modalForm.modalValue.value = c.value;
+      modalForm.modalExpiration.value = c.expiration;
+      modalForm.modalScreens.value = c.screens || '';
+      editIndex = index;
+    }
+  }
+
+  function closeModal(){
+    modal.style.display = 'none';
+  }
+
+  function removeClient(index){
+    if(confirm(`Confirma remoção do cliente: ${clients[index].name}?`)){
+      clients.splice(index,1);
+      saveClients();
+      renderTable();
+    }
+  }
+
+  function saveClients(){
+    localStorage.setItem('clients', JSON.stringify(clients));
+  }
+
+  function loadClients(){
+    const saved = localStorage.getItem('clients');
+    if(saved){
+      const parsed = JSON.parse(saved);
+      clients.splice(0, clients.length, ...parsed);
+    }
+    renderTable();
+  }
+
+  function formatMac(value) {
+    return value
+      .replace(/[^a-fA-F0-9]/g, '')  // remove todos os caracteres não-hex
+      .substring(0,12)                // limita a 12 caracteres (6 pares)
+      .replace(/(.{2})(?=.)/g, '$1:')// adiciona ":" a cada 2 caracteres
+      .toLowerCase();
+  }
+  const macInput = document.getElementById('modalMac');
+  macInput.addEventListener('input', function() {
+    let cursorPosition = this.selectionStart;
+    let oldValue = this.value;
+    let formatted = formatMac(oldValue);
+    
+    this.value = formatted;
+    
+    if (formatted.length > oldValue.length && (cursorPosition === 3 || cursorPosition === 6 || cursorPosition === 9 || cursorPosition === 12)) {
+      cursorPosition += 1;
+    }
+    this.selectionEnd = this.selectionStart = cursorPosition;
+  });
+
+  btnAdd.addEventListener('click', () => openModal());
+  cancelBtn.addEventListener('click', () => closeModal());
+  searchInput.addEventListener('input', () => renderTable());
+  filterStatus.addEventListener('change', () => renderTable());
+  filterExpiration.addEventListener('change', () => renderTable());
+  clearFilters.addEventListener('click', () => {
+    searchInput.value = '';
+    filterStatus.value = '';
+    filterExpiration.value = '';
+    renderTable();
+  });
+
+  modalForm.addEventListener('submit', e => {
+    e.preventDefault();
+    const newClient = {
+      name: modalForm.modalName.value.trim(),
+      app: modalForm.modalApp.value.trim(),
+      mac: modalForm.modalMac.value.trim(),
+      phone: modalForm.modalPhone.value.trim(),
+      servers: modalForm.modalServers.value.trim(),
+      value: parseFloat(modalForm.modalValue.value).toFixed(2),
+      expiration: modalForm.modalExpiration.value,
+      screens: modalForm.modalScreens.value.trim()
+    };
+    if(editIndex === null){
+      clients.push(newClient);
+    } else {
+      clients[editIndex] = newClient;
+    }
+    saveClients();
+    renderTable();
+    closeModal();
+  });
+
+  loadClients();
+
+  window.addEventListener('click', e => {
+    if(e.target === modal) closeModal();
+  });
+</script>
+</body>
+</html>
