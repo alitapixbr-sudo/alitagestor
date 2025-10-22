@@ -1,499 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dashboard Gestor de Clientes - Alita Play</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;900&display=swap');
-  body {
-    font-family: 'Inter', sans-serif;
-    background: #121214;
-    color: #eee;
-    margin: 0;
-    min-height: 100vh;
-  }
-  /* Estilos para Telas de Login/Seleção */
-  #login-screen, #device-selection-screen {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: #121214;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-  .login-box {
-    background: #1e1f23;
-    border: 2.5px solid #d7243d;
-    border-radius: 14px;
-    padding: 40px;
-    box-shadow: 0 6px 40px rgba(215,38,61,.45);
-    max-width: 350px;
-    width: 90%;
-    text-align: center;
-  }
-  .login-box h2 {
-    color: #fff;
-    font-size: 1.8em;
-    font-weight: 900;
-    margin-bottom: 25px;
-  }
-  .login-box input[type="password"] {
-    background: #232428;
-    color: #fafafa;
-    border: 2px solid #d7243d;
-    padding: 14px 16px;
-    border-radius: 9px;
-    font-size: 1.05em;
-    outline: none;
-    transition: border-color 0.3s ease;
-    width: 100%;
-    margin-bottom: 20px;
-    box-sizing: border-box;
-  }
-  .login-box button {
-    background: #d7243d;
-    color: white;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    padding: 14px 16px;
-    border-radius: 9px;
-    font-size: 1.05em;
-    width: 100%;
-    margin-bottom: 10px;
-  }
-  .login-box button:hover {
-    background: #ff4a5a;
-  }
-  .login-error {
-    color: #ff4a5a;
-    font-weight: 600;
-    margin-top: 15px;
-    height: 1.2em;
-  }
-
-  /* Dashboard styles */
-  .container {
-    max-width: 1250px;
-    margin: 48px auto 24px auto;
-    background: #1e1f23;
-    border-radius: 14px;
-    box-shadow: 0 6px 40px rgba(215,38,61,.35);
-    padding: 40px 38px 32px 38px;
-    border: 2.5px solid #d7243d;
-    transition: max-width 0.4s ease;
-  }
-  
-  /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
-  .force-mobile-view .container {
-    max-width: 480px; 
-    /* Garante que o container fique centralizado em modo 'mobile' no desktop */
-  }
-  /* OTIMIZAÇÃO MOBILE: Empilha os cards de resumo */
-  .force-mobile-view .dashboard-summary {
-    flex-direction: column; 
-    gap: 10px;
-  }
-  .force-mobile-view .summary-card {
-    padding: 18px 20px;
-  }
-  .force-mobile-view .summary-value {
-    font-size: 2.5em; /* Reduz um pouco o tamanho do número */
-  }
-  /* OTIMIZAÇÃO MOBILE: Empilha os filtros */
-  .force-mobile-view .filters {
-    flex-direction: column;
-  }
-  .force-mobile-view .filters input, 
-  .force-mobile-view .filters select, 
-  .force-mobile-view .filters button {
-    min-width: 100%;
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
-  }
-
-  /* OTIMIZAÇÃO MOBILE: Tabela mais compacta e legível */
-  .force-mobile-view table {
-    font-size: 0.9em; /* Reduz a fonte da tabela */
-  }
-  .force-mobile-view th, .force-mobile-view td {
-    padding: 12px 8px; /* Reduz o padding da célula */
-    white-space: nowrap; /* Impede a quebra de linha nas células */
-  }
-  /* Oculta colunas menos essenciais no modo mobile (para caber mais) */
-  .force-mobile-view th:nth-child(4), /* Telefone */
-  .force-mobile-view td:nth-child(4),
-  .force-mobile-view th:nth-child(5), /* Servidores */
-  .force-mobile-view td:nth-child(5) {
-    display: none;
-  }
-  /* FIM DAS OTIMIZAÇÕES MOBILE */
-
-  .logo-text {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2.4em;
-    font-weight: 900;
-    letter-spacing: 3px;
-    margin-bottom: 22px;
-    user-select: none;
-    background: linear-gradient(90deg, #fff 60%, #d7243d 60%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  h1 {
-    color: #d7243d;
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 1.62em;
-    font-weight: 800;
-    text-shadow: 0 2px 20px #4d0000aa;
-  }
-  /* Dashboard summary */
-  .dashboard-summary {
-    display: flex;
-    justify-content: space-around;
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-  .summary-card {
-    background: #29292e;
-    flex: 1;
-    padding: 24px 28px;
-    border-radius: 12px;
-    box-shadow: 0 0 18px #d7243d44;
-    text-align: center;
-    color: #ddd;
-  }
-  .summary-title {
-    font-weight: 600;
-    font-size: 1.1em;
-    margin-bottom: 6px;
-  }
-  .summary-value {
-    font-weight: 900;
-    font-size: 3.3em;
-    letter-spacing: 2px;
-  }
-  /* Search & filter */
-  .filters {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 28px;
-  }
-  .filters input, .filters select, .filters button {
-    background: #232428;
-    color: #fafafa;
-    border: 2px solid #d7243d;
-    padding: 14px 16px;
-    border-radius: 9px;
-    font-size: 1.05em;
-    outline: none;
-    transition: border-color 0.3s ease;
-    flex-grow: 1;
-    min-width: 160px;
-  }
-  .filters input:focus, .filters select:focus {
-    border-color: #ff4a5a;
-  }
-  .filters button {
-    background: #d7243d;
-    color: white;
-    font-weight: 700;
-    border: none;
-    cursor: pointer;
-    transition: background 0.3s;
-    flex-grow: none;
-    min-width: 140px;
-  }
-  .filters button:hover {
-    background: #ff4a5a;
-  }
-  /* Table container */
-  .table-wrapper {
-    overflow-x: auto;
-    border-radius: 11px;
-    box-shadow: 0 0 26px #d7243d54;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #222327;
-    border-radius: 11px;
-    overflow: hidden;
-    font-size: 1em;
-  }
-  thead {
-    background: #2d2f33;
-  }
-  th, td {
-    padding: 18px 22px;
-    text-align: left;
-    user-select: text;
-  }
-  th {
-    color: #d7243d;
-    font-weight: 800;
-    letter-spacing: 0.035em;
-  }
-  tbody tr:nth-child(odd) {
-    background: #1e2024;
-  }
-  tbody tr:hover {
-    background: #3d141c;
-    transition: background-color 0.3s ease;
-  }
-  /* Status badges */
-  .status-badge {
-    font-weight: 700;
-    padding: 6px 14px;
-    border-radius: 12px;
-    display: inline-block;
-    white-space: nowrap;
-  }
-  .status-ativo {
-    background: #28a745;
-    color: #f0f9f1;
-  }
-  .status-vencido {
-    background: #dc3545;
-    color: #fdecea;
-  }
-  .status-proximo {
-    background: #ffc107;
-    color: #4c3e00;
-  }
-  /* Buttons */
-  .btn {
-    cursor: pointer;
-    padding: 9px 17px;
-    border-radius: 8px;
-    border: none;
-    font-weight: 700;
-    margin-right: 6px;
-    font-size: 1em;
-    letter-spacing: 1px;
-    outline: none;
-    transition: background 0.3s ease;
-  }
-  .btn-remove {
-    background: #dc3545;
-    color: white;
-  }
-  .btn-remove:hover {
-    background: #ff5b6f;
-  }
-  .btn-edit {
-    background: #2f2f32;
-    color: #d7243d;
-    border: 2px solid #d7243d;
-  }
-  .btn-edit:hover {
-    background: #d7243d;
-    color: white;
-  }
-  .btn-add {
-    background: #d7243d;
-    color: white;
-    flex-grow: 0;
-  }
-  .btn-add:hover {
-    background: #ff4a5a;
-  }
-  /* Modal */
-  #modal {
-    display: none;
-    position: fixed;
-    z-index: 99;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(12,9,16,0.95);
-    align-items: center; justify-content: center;
-  }
-  #modal .modal-content {
-    background: #1a1820;
-    border: 3px solid #d7243d;
-    border-radius: 18px;
-    max-width: 480px;
-    width: 95%;
-    padding: 40px 32px 30px 32px;
-    color: #eee;
-    box-shadow: 0 8px 48px #d7243d77;
-  }
-  #modal h2 {
-    margin-bottom: 24px;
-    color: #d7243d;
-    font-size: 1.48em;
-    font-weight: 900;
-    text-align: center;
-  }
-  #modalForm input, #modalForm input[type=number] {
-    margin-bottom: 18px;
-    background: #2d2e34;
-    border: 2px solid #d7243d;
-    color: #eee;
-    border-radius: 10px;
-    padding: 14px 18px;
-    width: 100%;
-    font-size: 1.08em;
-  }
-  #modalForm input:focus {
-    border-color: #ff4757;
-  }
-  #modalForm .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    margin-top: 18px;
-  }
-  #modalForm button[type="button"] {
-    background: #444;
-    color: #ddd;
-    font-weight: 700;
-    font-size: 1.05em;
-    border-radius: 10px;
-    padding: 12px 20px;
-  }
-  #modalForm button[type="button"]:hover {
-    background: #2b2b2b;
-  }
-  #modalForm button[type="submit"] {
-    background: #d7243d;
-    color: white;
-    font-weight: 900;
-    font-size: 1.1em;
-    border-radius: 10px;
-    padding: 12px 26px;
-  }
-  #modalForm button[type="submit"]:hover {
-    background: #ff4a5a;
-  }
-  .footer {
-    margin-top: 44px;
-    text-align: center;
-    color: #ddd;
-    font-size: 1.1em;
-    letter-spacing: 1.1px;
-  }
-  .footer .creator {
-    font-weight: 900;
-    color: #fff;
-  }
-  .footer .brand {
-    color: #d7243d;
-  }
-  /* Media query para telas menores de 900px, aplicada para o modo "computador" em telas pequenas */
-  @media (max-width: 900px) {
-    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
-    body:not(.force-mobile-view) .dashboard-summary {
-        flex-wrap: wrap;
-    }
-    body:not(.force-mobile-view) .summary-card {
-        flex-basis: calc(50% - 8px); /* 2 colunas */
-    }
-    .container {padding: 30px 5vw;}
-    th, td {padding: 14px 12px; font-size: 1em;}
-    #modal .modal-content {padding: 30px 20px;}
-  }
-  @media (max-width: 600px) {
-    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
-    body:not(.force-mobile-view) .dashboard-summary {
-        flex-direction: column;
-    }
-    .filters {flex-direction: column;}
-    .footer {font-size: 1em;}
-    #modalForm input { font-size: 1em;}
-  }
-</style>
-</head>
-<body>
-
-<div id="login-screen">
-    <div class="login-box">
-      <div class="logo-text">
-        <span class="alita">Alita</span><span class="play">Play</span>
-      </div>
-      <h2>Acesso ao Dashboard</h2>
-      <form id="loginForm">
-          <input type="password" id="accessCode" placeholder="Insira o Código de Acesso" required />
-          <button type="submit">Entrar</button>
-          <div class="login-error" id="loginError"></div>
-      </form>
-    </div>
-</div>
-<div id="device-selection-screen" style="display: none;">
-    <div class="login-box">
-      <div class="logo-text">
-        <span class="alita">Alita</span><span class="play">Play</span>
-      </div>
-      <h2>Acessar como:</h2>
-      <button id="accessComputer">Computador (Desktop/Tablet)</button>
-      <button id="accessMobile">Celular (Mobile)</button>
-    </div>
-</div>
-<div id="dashboard-content" style="display: none;">
-  <div class="container">
-    <div class="logo-text">
-      <span class="alita">Alita</span><span class="play">Play</span>
-    </div>
-    <h1>Dashboard Gestor de Clientes</h1>
-    <div class="dashboard-summary" aria-label="Resumo do status dos clientes">
-      <div class="summary-card">
-        <div class="summary-title">Total de Clientes</div>
-        <div class="summary-value" id="totalClients">0</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-title">Ativos</div>
-        <div class="summary-value" id="activeClients">0</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-title">Próximos a Vencer</div>
-        <div class="summary-value" id="nearExpireClients">0</div>
-      </div>
-      <div class="summary-card">
-        <div class="summary-title">Vencidos</div>
-        <div class="summary-value" id="expiredClients">0</div>
-      </div>
-    </div>
-    <div class="filters" aria-label="Filtros de busca e ação">
-      <input type="text" id="search" placeholder="Pesquisar nome, app, MAC..." aria-label="Pesquisar clientes" />
-      <select id="filterStatus" aria-label="Filtrar por status">
-        <option value="">Status</option>
-        <option value="ativo">Ativo</option>
-        <option value="proximo">Próximo do vencimento</option>
-        <option value="vencido">Vencido</option>
-      </select>
-      <input type="date" id="filterExpiration" aria-label="Filtrar por data de vencimento" />
-      <button id="clearFilters" aria-label="Limpar filtros">Limpar Filtros</button>
-      <button id="btnAdd" class="btn btn-add" aria-label="Adicionar cliente">Adicionar</button>
-    </div>
-    <div class="table-wrapper" role="region" aria-live="polite" aria-label="Lista de clientes">
-      <table>
-        <thead>
-          <tr>
-            <th>Nome</th>
-            <th>Aplicativo</th>
-            <th>MAC</th>
-            <th>Telefone</th>
-            <th>Servidores</th>
-            <th>Valor (R$)</th>
-            <th>Vencimento</th>
-            <th>Número de telas</th>
-            <th>Status</th>
-            <th>Ações</th>
-          </tr>
-        </thead>
-        <tbody id="clientTableBody"></tbody>
-      </table>
-    </div>
-  </div>
-  
-  <div class="footer" aria-label="Créditos do criador">
+<div class="footer" aria-label="Créditos do criador">
     <span class="creator">Criado por: Felippe - CEO <span class="brand">Alita Play</span></span>
   </div>
 </div>
@@ -516,11 +21,25 @@
     </form>
   </div>
 </div>
+
+<div id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+  <div class="modal-content">
+    <h2 id="confirmModalTitle" style="color:#dc3545;">Confirmar Exclusão</h2>
+    <p style="text-align:center; margin-bottom: 30px; font-size:1.1em;">
+      Você tem certeza que deseja remover o cliente 
+      <strong id="clientNameToDelete" style="color:white;">[Nome do Cliente]</strong>?
+    </p>
+    <div class="modal-actions" style="justify-content: space-around; margin-top:0;">
+      <button type="button" id="cancelDeleteBtn">Cancelar</button>
+      <button type="button" id="confirmDeleteBtn" class="btn-remove" style="background: #dc3545; color: white;">Confirmar</button>
+    </div>
+  </div>
+</div>
 <script>
   // ------------------------------------
   // CONFIGURAÇÕES E ELEMENTOS
   // ------------------------------------
-  const ACCESS_CODE = 'AlitaCeo12'; 
+  const ACCESS_CODE = 'AlitaCeo12';
 
   const body = document.body;
   const loginScreen = document.getElementById('login-screen');
@@ -551,6 +70,13 @@
   const nearExpireClientsElem = document.getElementById('nearExpireClients');
   const expiredClientsElem = document.getElementById('expiredClients');
 
+  // ELEMENTOS DO NOVO MODAL DE CONFIRMAÇÃO
+  const confirmModal = document.getElementById('confirmModal');
+  const clientNameToDeleteElem = document.getElementById('clientNameToDelete');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  let clientIndexToDelete = null; // Variável para armazenar o índice do cliente a ser excluído
+
   let editIndex = null;
 
   // ------------------------------------
@@ -572,7 +98,7 @@
       } else {
           body.classList.remove('force-mobile-view');
       }
-      
+
       // Salva o tipo de dispositivo e o status de login na sessão
       sessionStorage.setItem('isLoggedIn', 'true');
       sessionStorage.setItem('deviceType', deviceType);
@@ -631,7 +157,8 @@
 
   function getStatus(client) {
     const today = new Date();
-    const vencimento = new Date(client.expiration);
+    // Adiciona 'T00:00:00' para evitar problemas de fuso horário na comparação
+    const vencimento = new Date(client.expiration + 'T00:00:00'); 
     const diffTime = vencimento - today;
     const diffDays = diffTime / (1000 * 60 * 60 * 24);
     if(diffDays < 0) return "vencido";
@@ -685,11 +212,26 @@
       return;
     }
 
-    filtered.forEach((c,i)=>{
+    // Nota: O índice 'i' aqui é o índice no array 'filtered',
+    // mas precisamos do índice no array 'clients' (original) para a remoção.
+    // Como a sua função removeClient original não lidava com a filtragem de forma ideal,
+    // estou mudando o `onclick` para passar o índice do *cliente* dentro do array `clients`.
+
+    // CUIDADO: Este loop abaixo está usando o 'i' do array *filtrado*.
+    // A chamada `onclick="openModal(${i})"` e `onclick="removeClient(${i})"`
+    // usa o índice do `filtered` array, não do `clients` array, o que
+    // causaria um erro se o array estivesse filtrado.
+
+    // SOLUÇÃO: Vamos encontrar o índice real no array `clients` para a ação.
+    filtered.forEach((c, i) => {
       let st = getStatus(c);
       let statusText = st.charAt(0).toUpperCase()+st.slice(1);
       let statusClass = `status-${st}`;
       const tr = document.createElement('tr');
+      
+      // Encontrar o índice real do cliente no array `clients`
+      const clientIndex = clients.findIndex(client => client.mac === c.mac && client.name === c.name);
+
       tr.innerHTML = `
         <td>${escapeHtml(c.name)}</td>
         <td>${escapeHtml(c.app)}</td>
@@ -701,15 +243,15 @@
         <td>${escapeHtml(c.screens)}</td>
         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
         <td>
-          <button class="btn btn-edit" onclick="openModal(${i})">Editar</button>
-          <button class="btn btn-remove" onclick="removeClient(${i})">Remover</button>
+          <button class="btn btn-edit" onclick="openModal(${clientIndex})">Editar</button>
+          <button class="btn btn-remove" onclick="openConfirmModal(${clientIndex})">Remover</button>
         </td>`;
       tbody.appendChild(tr);
     });
   }
 
   function formatDate(dateStr){
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T00:00:00'); // Garante que a data seja interpretada corretamente
     const day = ("0" + d.getDate()).slice(-2);
     const month = ("0" + (d.getMonth()+1)).slice(-2);
     const year = d.getFullYear();
@@ -723,6 +265,7 @@
   }
 
   function openModal(index=null){
+    closeConfirmModal(); // Garante que o modal de confirmação esteja fechado
     modal.style.display = 'flex';
     if(index === null){
       modalTitle.textContent = 'Adicionar Cliente';
@@ -746,12 +289,30 @@
   function closeModal(){
     modal.style.display = 'none';
   }
+  
+  // NOVA FUNÇÃO: ABRE O MODAL DE CONFIRMAÇÃO
+  function openConfirmModal(index){
+    const client = clients[index];
+    if (client) {
+      clientIndexToDelete = index;
+      clientNameToDeleteElem.textContent = client.name;
+      confirmModal.style.display = 'flex';
+    }
+  }
 
-  function removeClient(index){
-    if(confirm(`Confirma remoção do cliente: ${clients[index].name}?`)){
-      clients.splice(index,1);
+  // NOVA FUNÇÃO: FECHA O MODAL DE CONFIRMAÇÃO
+  function closeConfirmModal(){
+    confirmModal.style.display = 'none';
+    clientIndexToDelete = null;
+  }
+
+  // FUNÇÃO DE REMOÇÃO (Chamada após a confirmação)
+  function removeClient(){
+    if(clientIndexToDelete !== null){
+      clients.splice(clientIndexToDelete, 1);
       saveClients();
       renderTable();
+      closeConfirmModal();
     }
   }
 
@@ -780,15 +341,17 @@
     let cursorPosition = this.selectionStart;
     let oldValue = this.value;
     let formatted = formatMac(oldValue);
-    
+
     this.value = formatted;
-    
+
     if (formatted.length > oldValue.length && (cursorPosition === 3 || cursorPosition === 6 || cursorPosition === 9 || cursorPosition === 12)) {
       cursorPosition += 1;
     }
     this.selectionEnd = this.selectionStart = cursorPosition;
   });
 
+
+  // LISTENERS ATUALIZADOS
   btnAdd.addEventListener('click', () => openModal());
   cancelBtn.addEventListener('click', () => closeModal());
   searchInput.addEventListener('input', () => renderTable());
@@ -800,6 +363,10 @@
     filterExpiration.value = '';
     renderTable();
   });
+
+  // LISTENERS DO NOVO MODAL
+  confirmDeleteBtn.addEventListener('click', () => removeClient()); // Remove e fecha
+  cancelDeleteBtn.addEventListener('click', () => closeConfirmModal()); // Apenas fecha
 
   modalForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -825,10 +392,11 @@
 
   window.addEventListener('click', e => {
     if(e.target === modal) closeModal();
+    if(e.target === confirmModal) closeConfirmModal(); // Adiciona fechamento ao clicar fora do novo modal
   });
 
   // Chama a função de verificação de login ao carregar a página
-  checkLogin(); 
+  checkLogin();
 </script>
 </body>
 </html>
