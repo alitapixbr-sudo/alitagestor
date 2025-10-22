@@ -517,10 +517,11 @@
   // A lógica de decodificação foi totalmente encapsulada e ofuscada para dificultar a leitura do código-fonte.
   const VALID_CODES = (() => {
       // K_A: Chave de subtraçao (10) | K_B: Chave de divisao (2)
+      // Estas chaves foram encapsuladas em arrays para ofuscação extra
       const K_A = [10]; 
       const K_B = [2]; 
       
-      // O_C: Códigos Cifrados e Desordenados
+      // O_C: Códigos Cifrados e Desordenados (AlitaCeo12 e Ray1206)
       const O_C = [
           // AlitaCeo12: Valores cifrados e misturados:
           [140, 114, 134, 218, 236, 226, 122, 220, 242, 210], 
@@ -528,22 +529,24 @@
           [174, 252, 122, 106, 114, 210, 110]
       ];
 
-      // O_M: Mapas de Decodificação (Ordem correta para reverter a mistura)
+      // O_M: Mapas de Decodificação (A chave que desfaz a mistura de O_C)
       const O_M = [
-          // Mapa para AlitaCeo12 (Índices para reordenar O_C[0])
+          // Mapa para AlitaCeo12 (Índices para reordenar O_C[0] para a ordem correta)
           [0, 5, 7, 8, 9, 2, 3, 4, 1, 6],
-          // Mapa para Ray1206 (Índices para reordenar O_C[1])
-          [0, 5, 1, 4, 6, 3, 2]
+          // Mapa para Ray1206 (Índices para reordenar O_C[1] para a ordem correta)
+          [2, 6, 0, 4, 1, 5, 3]
       ];
 
-      // DE_K: Função de Decodificação (O_V: Array de códigos cifrados, O_D: Mapa de decodificação)
-      // Esta função é ilegível para não-programadores
+      // DE_K: Função de Decodificação (Complexa e compacta)
       const DE_K = (O_V, O_D) => 
+          // 1. Reordena o array O_V usando o mapa O_D
           O_D.reduce((O_S, O_C_I, O_R) => (O_S[O_R] = O_V[O_C_I], O_S), new Array(O_V.length))
+             // 2. Decifra cada número: (X - K_A) / K_B, retornando o código ASCII
              .map(O_R => (O_R - K_A[0]) / K_B[0]);
 
       const codes = [];
       for (let i = 0; i < O_C.length; i++) {
+          // Converte a lista de códigos ASCII de volta para a string do código de acesso
           codes.push(String.fromCharCode(...DE_K(O_C[i], O_M[i])));
       }
       return codes;
