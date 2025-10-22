@@ -13,7 +13,7 @@
     margin: 0;
     min-height: 100vh;
   }
-  /* Estilos para Telas de Login/Seleção */
+  /* Estilos para Telas de Login/Seleção */
   #login-screen, #device-selection-screen {
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -558,12 +558,12 @@
   const nearExpireClientsElem = document.getElementById('nearExpireClients');
   const expiredClientsElem = document.getElementById('expiredClients');
 
-  // ELEMENTOS DO NOVO MODAL DE CONFIRMAÇÃO
-  const confirmModal = document.getElementById('confirmModal');
-  const clientNameToDeleteElem = document.getElementById('clientNameToDelete');
-  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-  let clientIndexToDelete = null; // Variável para armazenar o índice do cliente a ser excluído
+  // ELEMENTOS DO NOVO MODAL DE CONFIRMAÇÃO
+  const confirmModal = document.getElementById('confirmModal');
+  const clientNameToDeleteElem = document.getElementById('clientNameToDelete');
+  const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+  const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+  let clientIndexToDelete = null; // Variável para armazenar o índice do cliente a ser excluído
 
   let editIndex = null;
 
@@ -709,7 +709,7 @@
       // Encontrar o índice real do cliente no array `clients` (necessário para a edição/remoção funcionar com filtros)
       const clientIndex = clients.findIndex(client => client.mac === c.mac && client.name === c.name);
       
-      // Correção: Se não encontrar por algum motivo, usa o índice atual, mas é menos seguro se estiver filtrado.
+      // Usa o índice seguro
       const safeIndex = clientIndex !== -1 ? clientIndex : i; 
 
       tr.innerHTML = `
@@ -843,9 +843,9 @@
     renderTable();
   });
 
-  // LISTENERS DO NOVO MODAL
-  confirmDeleteBtn.addEventListener('click', () => removeClient()); // Remove e fecha
-  cancelDeleteBtn.addEventListener('click', () => closeConfirmModal()); // Apenas fecha
+  // LISTENERS DO NOVO MODAL
+  confirmDeleteBtn.addEventListener('click', () => removeClient()); // Remove e fecha
+  cancelDeleteBtn.addEventListener('click', () => closeConfirmModal()); // Apenas fecha
 
   modalForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -871,7 +871,7 @@
 
   window.addEventListener('click', e => {
     if(e.target === modal) closeModal();
-    if(e.target === confirmModal) closeConfirmModal();
+    if(e.target === confirmModal) closeConfirmModal();
   });
 
   // Chama a função de verificação de login ao carregar a página
