@@ -91,7 +91,6 @@
   /* ESTILO PARA SIMULAR RESOLUÇÃO MOBILE EM QUALQUER TELA */
   .force-mobile-view .container {
     max-width: 480px; 
-    /* Garante que o container fique centralizado em modo 'mobile' no desktop */
   }
   /* OTIMIZAÇÃO MOBILE: Empilha os cards de resumo */
   .force-mobile-view .dashboard-summary {
@@ -102,7 +101,7 @@
     padding: 18px 20px;
   }
   .force-mobile-view .summary-value {
-    font-size: 2.5em; /* Reduz um pouco o tamanho do número */
+    font-size: 2.5em; 
   }
   /* OTIMIZAÇÃO MOBILE: Empilha os filtros */
   .force-mobile-view .filters {
@@ -112,21 +111,21 @@
   .force-mobile-view .filters select, 
   .force-mobile-view .filters button {
     min-width: 100%;
-    box-sizing: border-box; /* Garante que padding e border não aumentem a largura */
+    box-sizing: border-box; 
   }
 
   /* OTIMIZAÇÃO MOBILE: Tabela mais compacta e legível */
   .force-mobile-view table {
-    font-size: 0.9em; /* Reduz a fonte da tabela */
+    font-size: 0.9em; 
   }
   .force-mobile-view th, .force-mobile-view td {
-    padding: 12px 8px; /* Reduz o padding da célula */
-    white-space: nowrap; /* Impede a quebra de linha nas células */
+    padding: 12px 8px; 
+    white-space: nowrap; 
   }
   /* Oculta colunas menos essenciais no modo mobile (para caber mais) */
-  .force-mobile-view th:nth-child(4), /* Telefone */
+  .force-mobile-view th:nth-child(4), 
   .force-mobile-view td:nth-child(4),
-  .force-mobile-view th:nth-child(5), /* Servidores */
+  .force-mobile-view th:nth-child(5), 
   .force-mobile-view td:nth-child(5) {
     display: none;
   }
@@ -389,19 +388,17 @@
   }
   /* Media query para telas menores de 900px, aplicada para o modo "computador" em telas pequenas */
   @media (max-width: 900px) {
-    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
     body:not(.force-mobile-view) .dashboard-summary {
         flex-wrap: wrap;
     }
     body:not(.force-mobile-view) .summary-card {
-        flex-basis: calc(50% - 8px); /* 2 colunas */
+        flex-basis: calc(50% - 8px); 
     }
     .container {padding: 30px 5vw;}
     th, td {padding: 14px 12px; font-size: 1em;}
     #modal .modal-content {padding: 30px 20px;}
   }
   @media (max-width: 600px) {
-    /* Estas regras só são aplicadas se a classe force-mobile-view NÃO estiver ativa */
     body:not(.force-mobile-view) .dashboard-summary {
         flex-direction: column;
     }
@@ -517,10 +514,44 @@
   </div>
 </div>
 <script>
+  // A lógica de decodificação foi totalmente encapsulada e ofuscada para dificultar a leitura do código-fonte.
+  const VALID_CODES = (() => {
+      // K_A: Chave de subtraçao (10) | K_B: Chave de divisao (2)
+      const K_A = [10]; 
+      const K_B = [2]; 
+      
+      // O_C: Códigos Cifrados e Desordenados
+      const O_C = [
+          // AlitaCeo12: Valores cifrados e misturados:
+          [140, 114, 134, 218, 236, 226, 122, 220, 242, 210], 
+          // Ray1206: Valores cifrados e misturados:
+          [174, 252, 122, 106, 114, 210, 110]
+      ];
+
+      // O_M: Mapas de Decodificação (Ordem correta para reverter a mistura)
+      const O_M = [
+          // Mapa para AlitaCeo12 (Índices para reordenar O_C[0])
+          [0, 5, 7, 8, 9, 2, 3, 4, 1, 6],
+          // Mapa para Ray1206 (Índices para reordenar O_C[1])
+          [0, 5, 1, 4, 6, 3, 2]
+      ];
+
+      // DE_K: Função de Decodificação (O_V: Array de códigos cifrados, O_D: Mapa de decodificação)
+      // Esta função é ilegível para não-programadores
+      const DE_K = (O_V, O_D) => 
+          O_D.reduce((O_S, O_C_I, O_R) => (O_S[O_R] = O_V[O_C_I], O_S), new Array(O_V.length))
+             .map(O_R => (O_R - K_A[0]) / K_B[0]);
+
+      const codes = [];
+      for (let i = 0; i < O_C.length; i++) {
+          codes.push(String.fromCharCode(...DE_K(O_C[i], O_M[i])));
+      }
+      return codes;
+  })(); 
+  
   // ------------------------------------
-  // CONFIGURAÇÕES E ELEMENTOS
+  // ELEMENTOS
   // ------------------------------------
-  const ACCESS_CODE = 'AlitaCeo12'; 
 
   const body = document.body;
   const loginScreen = document.getElementById('login-screen');
@@ -529,11 +560,9 @@
   const accessCodeInput = document.getElementById('accessCode');
   const loginError = document.getElementById('loginError');
 
-  // NOVOS ELEMENTOS
   const deviceSelectionScreen = document.getElementById('device-selection-screen');
   const accessComputerBtn = document.getElementById('accessComputer');
   const accessMobileBtn = document.getElementById('accessMobile');
-  // FIM DOS NOVOS ELEMENTOS
 
   const clients = [];
   const tbody = document.getElementById('clientTableBody');
@@ -566,14 +595,12 @@
       deviceSelectionScreen.style.display = 'none';
       dashboardContent.style.display = 'block';
 
-      // Aplica estilo para simular resolução mobile, se necessário
       if (deviceType === 'mobile') {
           body.classList.add('force-mobile-view');
       } else {
           body.classList.remove('force-mobile-view');
       }
       
-      // Salva o tipo de dispositivo e o status de login na sessão
       sessionStorage.setItem('isLoggedIn', 'true');
       sessionStorage.setItem('deviceType', deviceType);
 
@@ -585,13 +612,10 @@
       const deviceType = sessionStorage.getItem('deviceType');
 
       if (isLoggedIn && deviceType) {
-          // Já fez login e escolheu o dispositivo: carrega o dashboard
           loadDashboard(deviceType);
       } else if (isLoggedIn) {
-          // Fez login, mas não escolheu o dispositivo: mostra a tela de seleção
           showDeviceSelection();
       } else {
-          // Não logado: mostra a tela de login
           loginScreen.style.display = 'flex';
           dashboardContent.style.display = 'none';
       }
@@ -604,13 +628,12 @@
   loginForm.addEventListener('submit', e => {
       e.preventDefault();
       const code = accessCodeInput.value.trim();
-
-      if (code === ACCESS_CODE) {
-          // Código correto: armazena status de login e vai para a seleção de dispositivo
+      
+      // Verifica se o código de acesso está no array de códigos válidos
+      if (VALID_CODES.includes(code)) {
           sessionStorage.setItem('isLoggedIn', 'true');
           showDeviceSelection();
       } else {
-          // Código incorreto: mostra mensagem de erro
           loginError.textContent = 'Código de acesso inválido.';
           accessCodeInput.value = '';
           accessCodeInput.focus();
